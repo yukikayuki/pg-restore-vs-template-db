@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: db-sandbox-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: sandbox
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "psql -U postgres -d sandbox -c 'SELECT 1 FROM _init_completed' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 614M
+
+volumes:
+  postgres_data:
